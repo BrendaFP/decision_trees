@@ -41,7 +41,7 @@ def calculateIG(nodes, data, name, entropy):
 
 def id3(nodes,entropy,data,cont):
     if entropy == 0:
-        print("  " * cont  + "ANSWER:"+ data[0][nodes[len(nodes)-1].position])
+        print("  " * cont  + "ANSWER: "+ data[0][nodes[len(nodes)-1].position])
     else:
         best_ig = 0
         
@@ -53,7 +53,7 @@ def id3(nodes,entropy,data,cont):
                     best_feature = node
         
         for attribute in best_feature.attributes:
-            print("  " * cont + best_feature.name + ":" + attribute)
+            print("  " * cont + best_feature.name + ": " + attribute)
             split = [row for row in data if attribute == row[best_feature.position]]
             aux_entropy = calculateEntropy(nodes, split)
             
