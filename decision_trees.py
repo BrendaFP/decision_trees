@@ -17,22 +17,48 @@ def calculateEntropy(nodes, data):
     for attribute in relation.attributes:
         count[attribute] = 0
         
-    for i in range(len(data)):
+    for i in range(total):
         max = len(data[i])-1
         attribute = data[i][max]
         
         count[attribute] += 1
         
     for attribute in count:
-        entropy -= (count[attribute] / total) * (math.log(count[attribute] / total) / math.log(2))
+        if count[attribute] != 0:
+            entropy -= (count[attribute] / total) * (math.log(count[attribute] / total) / math.log(2))
             
     return entropy
-
-
-def id3(nodes,entropy,data):
     
+def calculateIG(nodes, data, name, entropy):
+    info_gain = entropy
+    for node in nodes:
+        for attribute in node.attributes:
+            if(node.name == name):
+                split = [row for row in data if attribute == row[node.position]]
+                info_gain -= ((len(split) / len(data)) * calculateEntropy(nodes, split))
     
-    return 1
+    return info_gain
+
+def id3(nodes,entropy,data,cont):
+    if entropy == 0:
+        print("  " * cont  + "ANSWER:"+ data[0][nodes[len(nodes)-1].position])
+    else:
+        best_ig = 0
+        
+        for node in nodes:
+            if(node != nodes[len(nodes)-1]):
+                calc_ig = calculateIG(nodes, data,node.name,entropy)
+                if(calc_ig > best_ig):
+                    best_ig = calc_ig
+                    best_feature = node
+        
+        for attribute in best_feature.attributes:
+            print("  " * cont + best_feature.name + ":" + attribute)
+            split = [row for row in data if attribute == row[best_feature.position]]
+            aux_entropy = calculateEntropy(nodes, split)
+            
+            if(len(split)>0):
+                id3(nodes,aux_entropy,split, cont+1)
 
     
 def main():
@@ -40,14 +66,16 @@ def main():
     attributes = {}
     data = []
     nodes = [] 
-    
+    cont = 0
     i=0
+    
+    
     for line in fileinput.input():
     
         if line[0] != '%':
             line = line.rstrip()
             lines.append(line)
-            print(line)
+            #print(line)
             
             if line.startswith('@data') or line.startswith('@relation') or line == '':
                 continue
@@ -81,8 +109,8 @@ def main():
     #print(data)
     
     entropy = calculateEntropy(nodes, data)
-    print(entropy)
-    tree = id3(nodes,entropy,data)
+    
+    id3(nodes,entropy,data,cont)
 
 if __name__ == '__main__':
   main()
